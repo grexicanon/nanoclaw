@@ -316,7 +316,7 @@ export class WhatsAppChannel implements Channel {
                 fs.mkdirSync(attachDir, { recursive: true });
                 const filename = path.basename(
                   normalized.documentMessage.fileName ||
-                  `doc-${Date.now()}.pdf`,
+                    `doc-${Date.now()}.pdf`,
                 );
                 const filePath = path.join(attachDir, filename);
                 fs.writeFileSync(filePath, buffer as Buffer);
@@ -344,7 +344,6 @@ export class WhatsAppChannel implements Channel {
                 `@${ASSISTANT_NAME}`,
               );
             }
-
 
             // Skip protocol messages with no text content (encryption keys, read receipts, etc.)
             if (!content) continue;

@@ -40,6 +40,7 @@ import { isImageMessage, processImage } from '../image.js';
 import { logger } from '../logger.js';
 import { isVoiceMessage, transcribeAudioMessage } from '../transcription.js';
 import pino from 'pino';
+import { isVoiceMessage, transcribeAudioMessage } from '../transcription.js';
 
 // Baileys requires a pino-compatible logger instance
 const baileysLogger = pino({ level: 'silent' });
@@ -457,6 +458,10 @@ export class WhatsAppChannel implements Channel {
     } catch (err) {
       logger.debug({ jid, err }, 'Failed to update typing status');
     }
+  }
+
+  async syncGroups(force: boolean): Promise<void> {
+    return this.syncGroupMetadata(force);
   }
 
   /**

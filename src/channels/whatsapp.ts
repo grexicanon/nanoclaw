@@ -40,7 +40,6 @@ import { isImageMessage, processImage } from '../image.js';
 import { logger } from '../logger.js';
 import { isVoiceMessage, transcribeAudioMessage } from '../transcription.js';
 import pino from 'pino';
-import { isVoiceMessage, transcribeAudioMessage } from '../transcription.js';
 
 // Baileys requires a pino-compatible logger instance
 const baileysLogger = pino({ level: 'silent' });

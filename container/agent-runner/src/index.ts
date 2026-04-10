@@ -21,8 +21,11 @@ import {
   query,
   HookCallback,
   PreCompactHookInput,
+  SDKUserMessage,
 } from '@anthropic-ai/claude-agent-sdk';
 import { fileURLToPath } from 'url';
+
+type ImageMediaType = 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
 
 interface ContainerInput {
   prompt: string;
@@ -38,7 +41,7 @@ interface ContainerInput {
 
 interface ImageContentBlock {
   type: 'image';
-  source: { type: 'base64'; media_type: string; data: string };
+  source: { type: 'base64'; media_type: ImageMediaType; data: string };
 }
 interface TextContentBlock {
   type: 'text';
@@ -62,13 +65,6 @@ interface SessionEntry {
 
 interface SessionsIndex {
   entries: SessionEntry[];
-}
-
-interface SDKUserMessage {
-  type: 'user';
-  message: { role: 'user'; content: string | ContentBlock[] };
-  parent_tool_use_id: null;
-  session_id: string;
 }
 
 const IPC_INPUT_DIR = '/workspace/ipc/input';
@@ -414,7 +410,7 @@ async function runQuery(
       const imgPath = path.join('/workspace/group', img.relativePath);
       try {
         const data = fs.readFileSync(imgPath).toString('base64');
-        blocks.push({ type: 'image', source: { type: 'base64', media_type: img.mediaType, data } });
+        blocks.push({ type: 'image', source: { type: 'base64', media_type: img.mediaType as ImageMediaType, data } });
       } catch (err) {
         log(`Failed to load image: ${imgPath}`);
       }

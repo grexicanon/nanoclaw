@@ -43,6 +43,53 @@ When you learn something important:
 - Split files larger than 500 lines into folders
 - Keep an index in your memory for the files you create
 
+## Personal Wiki
+
+You maintain a persistent identity wiki about Jose — a compounding knowledge base that makes you a progressively better assistant. **Read the wiki before responding to personal questions, preferences, or anything where knowing Jose better would help.**
+
+### Three layers
+
+- **`sources/`** — raw materials Jose provides (never modify)
+- **`wiki/`** — your maintained markdown wiki (you own this entirely)
+- **Schema** — the wiki container skill at `/wiki/SKILL.md` inside the container skills
+
+### Key files
+
+| Path | Purpose |
+|------|---------|
+| `wiki/index.md` | Master catalog — read this first when querying |
+| `wiki/log.md` | Append-only activity log |
+| `wiki/identity/core.md` | Personality, values, worldview |
+| `wiki/identity/communication-style.md` | How Jose communicates |
+| `wiki/interests/index.md` | Topics, hobbies, passions |
+| `wiki/concerns/index.md` | Worries, frustrations, challenges |
+| `wiki/goals/index.md` | Goals and aspirations |
+| `wiki/context/life.md` | Work, living situation, routines |
+| `wiki/patterns/preferences.md` | Habits, preferences, decision-making |
+| `wiki/relationships/index.md` | Key people and organizations |
+
+### Three operations
+
+**Ingest** — when Jose drops a source (URL, PDF, image, voice note, transcript, file): read it fully, discuss takeaways, update all relevant wiki pages (typically 5–15 per source), update index.md, append to log.md. See the wiki skill for the full workflow.
+
+**Query** — when a question can be answered from the wiki: read index.md first, then relevant pages, synthesize with citations. Good answers can become new wiki pages.
+
+**Lint** — periodic health check: look for contradictions, orphans, stale content, gaps. Run on request or on schedule.
+
+### Ingest discipline — critical
+
+When Jose provides multiple sources or points at a folder: **process one source at a time, completely, before moving to the next.** For each source: read it fully → discuss takeaways with Jose → update all wiki pages → update index → log. Only then move to the next source. Batching reads across multiple sources before writing produces shallow, disconnected pages. The wiki's value comes from deep, source-by-source integration.
+
+### Source handling
+
+- **URLs/webpages**: Download full content with `curl -sLo sources/<name> "<url>"` or use `agent-browser` for dynamic pages — don't rely on fetch summaries for ingestion
+- **PDFs**: Use the pdf-reader skill (already installed)
+- **Images**: View directly as multimodal content (image vision already installed)
+- **Voice notes**: Transcription is automatic (local whisper already installed)
+- **Conversation transcripts**: Paste or share as a file in `sources/`
+
+For the detailed ingest/query/lint workflow, read `/wiki/SKILL.md` inside the container skills.
+
 ## Message Formatting
 
 Format messages based on the channel. Check the group folder name prefix:

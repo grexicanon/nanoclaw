@@ -110,7 +110,10 @@ export class GmailChannel implements Channel {
           .getProfile({ userId: 'me' })
           .then((profile) => {
             this.userEmail = profile.data.emailAddress || '';
-            logger.info({ email: this.userEmail }, 'Gmail channel connected (retry)');
+            logger.info(
+              { email: this.userEmail },
+              'Gmail channel connected (retry)',
+            );
             this.pollForMessages().catch((e) =>
               logger.error({ err: e }, 'Gmail initial poll error (retry)'),
             );

@@ -84,10 +84,46 @@ export class GmailChannel implements Channel {
 
     this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
 
-    // Verify connection
-    const profile = await this.gmail.users.getProfile({ userId: 'me' });
-    this.userEmail = profile.data.emailAddress || '';
-    logger.info({ email: this.userEmail }, 'Gmail channel connected');
+    // Verify connection — retry in background if network is not yet available
+    // (e.g. service started before internet was ready after a reboot)
+    try {
+      const profile = await this.gmail.users.getProfile({ userId: 'me' });
+      this.userEmail = profile.data.emailAddress || '';
+      logger.info({ email: this.userEmail }, 'Gmail channel connected');
+    } catch (err: unknown) {
+      const code = (err as NodeJS.ErrnoException)?.code;
+      const isNetworkErr =
+        code === 'EAI_AGAIN' ||
+        code === 'ENOTFOUND' ||
+        code === 'ECONNREFUSED' ||
+        code === 'ETIMEDOUT' ||
+        (err as { type?: string })?.type === 'GaxiosError';
+      if (!isNetworkErr) throw err;
+      logger.warn(
+        { err },
+        'Gmail: network not yet available, will retry in background',
+      );
+      // Retry every 30s until successful
+      const retryConnect = () => {
+        if (!this.gmail) return;
+        this.gmail.users
+          .getProfile({ userId: 'me' })
+          .then((profile) => {
+            this.userEmail = profile.data.emailAddress || '';
+            logger.info({ email: this.userEmail }, 'Gmail channel connected (retry)');
+            this.pollForMessages().catch((e) =>
+              logger.error({ err: e }, 'Gmail initial poll error (retry)'),
+            );
+            if (this.pollIntervalMs > 0) schedulePoll();
+          })
+          .catch((e) => {
+            logger.warn({ err: e }, 'Gmail: retry failed, trying again in 30s');
+            setTimeout(retryConnect, 30_000);
+          });
+      };
+      setTimeout(retryConnect, 30_000);
+      return; // Don't crash main(); polling will start once network is up
+    }
 
     // Start polling with error backoff
     const schedulePoll = () => {

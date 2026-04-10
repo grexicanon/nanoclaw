@@ -88,8 +88,27 @@ export class WhatsAppChannel implements Channel {
 
   async connect(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.pendingFirstOpen = resolve;
-      this.connectInternal().catch(reject);
+      // If the first 'open' event doesn't fire within 60 s (e.g. network
+      // flap after a reboot), resolve anyway so the rest of the app can
+      // start. The reconnect loop will bring WhatsApp back on its own.
+      const timeout = setTimeout(() => {
+        if (this.pendingFirstOpen) {
+          logger.warn(
+            'WhatsApp: connect() timed out waiting for first open, proceeding anyway',
+          );
+          this.pendingFirstOpen = undefined;
+          resolve();
+        }
+      }, 60_000);
+
+      this.pendingFirstOpen = () => {
+        clearTimeout(timeout);
+        resolve();
+      };
+      this.connectInternal().catch((err) => {
+        clearTimeout(timeout);
+        reject(err);
+      });
     });
   }
 
